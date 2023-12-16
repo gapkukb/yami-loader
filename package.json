@@ -1,0 +1,30 @@
+{
+	"name": "yami-loader",
+	"private": true,
+	"version": "0.0.1",
+	"type": "module",
+	"module": "./dist/index.es.js",
+	"main": "./dist/index.umd.js",
+	"browser": "./dist/index.umd.js",
+	"types": "./dist/index.d.ts",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/monatheoctocat/my_package.git"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/monatheoctocat/my_package/issues"
+	},
+	"homepage": "https://github.com/monatheoctocat/my_package",
+	"scripts": {
+		"dev": "vite",
+		"build": "vite build && tsc -p tsconfig.build.json",
+		"preview": "vite preview"
+	},
+	"devDependencies": {
+		"typescript": "^5.2.2",
+		"vite": "^5.0.8"
+	}
+}

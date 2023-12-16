@@ -1,6 +1,6 @@
 {
 	"name": "yami-loader",
-	"version": "0.0.6",
+	"version": "0.0.7",
 	"type": "module",
 	"module": "./dist/index.es.js",
 	"main": "./dist/index.umd.js",
@@ -10,7 +10,15 @@
 		"type": "git",
 		"url": "https://github.com/monatheoctocat/my_package.git"
 	},
-	"keywords": [],
+	"keywords": [
+		"script",
+		"css",
+		"js",
+		"load",
+		"dynamic load",
+		"import",
+		"jsonp"
+	],
 	"author": "",
 	"license": "ISC",
 	"bugs": {

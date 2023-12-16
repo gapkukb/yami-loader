@@ -1,6 +1,6 @@
 {
 	"name": "yami-loader",
-	"version": "0.0.7",
+	"version": "0.0.8",
 	"type": "module",
 	"module": "./dist/index.es.js",
 	"main": "./dist/index.umd.js",

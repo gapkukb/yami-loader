@@ -14,6 +14,7 @@ export enum LoaderEvent {
 
 const __parent__ = document.head || document.getElementsByTagName("head")[0] || document.body;
 const __loaded__ = "loaded";
+const __supported__ = ["body", "frame", "frameset", "iframe", "img", "link", "script", "style"];
 
 function elem<T extends Tags>(url: string, tag: Tags, options: Attributes<T>): HTMLElementTagNameMap[T] {
 	let el = options.id ? document.getElementById(options.id) : null;
@@ -40,6 +41,9 @@ export const yamiLoader = {
 		const url: string = options.src || options.href;
 
 		let el = elem<T>(url, tag, options);
+		if (!__supported__.includes(tag)) {
+			return Promise.resolve(el);
+		}
 
 		if (el.getAttribute(__loaded__) === "1") {
 			return Promise.resolve(el);

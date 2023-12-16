@@ -58,8 +58,12 @@ yamiLoader
 ```
 yamiLoader
     .jsonp("/demo.js", {
-        callbackKey: "callback",
-        callbackName: "demo",
+        // final like this: http://www.xx.com?jsonCallback=demo
+
+        // tell the server the params name of the callback
+        name: "jsonCallback",
+        // tell the server the callback function name
+        callee: "demo",
     })
     .then((data) => {
         console.log(data);

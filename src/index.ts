@@ -138,11 +138,3 @@ export const yamiLoader = {
 };
 
 export default yamiLoader;
-
-yamiLoader.loadScript("demo.js", undefined, {
-	onload(result) {
-		console.log(this);
-
-		console.log(result);
-	},
-});

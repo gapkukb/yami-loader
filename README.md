@@ -96,6 +96,8 @@ yamiLoader
     })
     .then((el) => {
         console.log(el);
+        // default insert to the head, you can re-insert to the body or other element
+        document.body.appendChild(el);
     });
 
 ```

@@ -1,92 +1,114 @@
 type Tags = keyof HTMLElementTagNameMap;
-type Attributes<T extends Tags> = Partial<HTMLElementTagNameMap[T]>;
-interface Callbacks<T> {
-	onload?: (result: T) => void;
-	onerror?: (element: Error) => void;
-	oncomplete?: (element: HTMLElement) => void;
+
+type Attributes<T extends Tags> = Partial<HTMLElementTagNameMap[T]> & { extra?: any };
+
+interface Callbacks<T extends Tags, R = unknown, J extends boolean = false, U = JSONPAttribute<T, J>> {
+	onload?: J extends false ? (el: HTMLElementTagNameMap[T], options: U) => void : (data: R, options: U) => void;
+	onerror?: (reason: string, options: U) => void;
+	oncomplete?: (options: U) => void;
 }
+
+type JSONPOptions = Attributes<"script"> & {
+	callee: string;
+	name?: string;
+};
+
+type JSONPAttribute<T extends Tags, J extends boolean = false> = J extends false
+	? Attributes<T>
+	: Attributes<T> & JSONPOptions;
 
 export enum LoaderEvent {
-	LOAD = "load",
-	ERROR = "error",
-	COMPLETE = "complete",
+	LOAD = "_load",
+	ERROR = "_error",
+	COMPLETE = "_complete",
 }
 
-const __parent__ = document.head || document.getElementsByTagName("head")[0] || document.body;
-const __loaded__ = "loaded";
-const __supported__ = ["body", "frame", "frameset", "iframe", "img", "link", "script", "style"];
+const _parent_ = document.head || document.body;
+const _loaded_ = "loaded";
+const _can_load_ = ["body", "frame", "frameset", "iframe", "img", "link", "script", "style"];
+const fire = (event: LoaderEvent, detail: any) => document.dispatchEvent(new CustomEvent(event, { detail }));
 
 function elem<T extends Tags>(url: string, tag: Tags, options: Attributes<T>): HTMLElementTagNameMap[T] {
-	let el = options.id ? document.getElementById(options.id) : null;
+	let el = options.id ? _parent_.querySelector("#" + options.id) : null;
 	if (!el) {
 		const selector = `${tag}[${tag === "link" ? "href" : "src"}="${url}"]`;
-		el = __parent__.querySelector(selector);
+		el = _parent_.querySelector(selector);
 	}
 	if (!el) {
 		el = document.createElement(tag);
 		Object.assign(el, options);
-		__parent__.appendChild(el);
+		_parent_.appendChild(el);
 	}
 	return el as HTMLElementTagNameMap[T];
 }
 
-export const yamiLoader = {
-	LoaderEvent,
+export class YamiLoader {
+	timeout = 15 * 1000;
+	LoaderEvent = LoaderEvent;
+	constructor(options?: { timeout?: number }) {
+		Object.assign(this, options);
+	}
 	load<T extends Tags>(
 		tag: T,
 		options: Attributes<T> = {},
-		callbacks: Callbacks<HTMLElementTagNameMap[T]> = {}
-	): Promise<HTMLElementTagNameMap[T]> {
+		callbacks: Callbacks<T> = {}
+	): Promise<{
+		el: HTMLElementTagNameMap[T];
+		options: Attributes<T>;
+	}> {
 		//@ts-ignore
-		const url: string = options.src || options.href;
-
+		const url: string = options.href || options.src;
 		let el = elem<T>(url, tag, options);
-		if (!__supported__.includes(tag)) {
-			return Promise.resolve(el);
-		}
-
-		if (el.getAttribute(__loaded__) === "1") {
-			return Promise.resolve(el);
-		}
-
 		let invoke!: () => void;
+		let timer: number = 0;
 
 		return new Promise<any>((resolve, reject) => {
-			function load() {
-				resolve(el);
+			function ok() {
+				resolve({ el, options });
 			}
-			function err() {
-				reject(`Failed to load ${url}`);
+			function err(reason?: String | Event) {
+				reject({ reason: typeof reason === "string" ? reason : `Failed to load ${url}`, options });
 			}
 
-			el.addEventListener("load", load, false);
+			if (!_can_load_.includes(tag)) {
+				return ok();
+			} else if (!url) {
+				return err("Not found the source address");
+			} else if (el.getAttribute(_loaded_) === "1") {
+				return ok();
+			}
+
+			el.addEventListener("load", ok, false);
 			el.addEventListener("error", err, false);
 
 			invoke = () => {
-				el.removeEventListener("load", load, false);
+				el.removeEventListener("load", ok, false);
 				el.removeEventListener("error", err, false);
-				document.dispatchEvent(new CustomEvent(LoaderEvent.COMPLETE, { detail: el }));
-				callbacks.oncomplete?.(el);
+				fire(LoaderEvent.COMPLETE, options);
+				callbacks.oncomplete?.(options);
+				clearTimeout(timer);
 			};
 
-			const duration = 15 * 1000;
-			setTimeout(() => reject(`Time out of ${duration}ms`), duration);
+			timer = setTimeout(() => err(`Time out of ${this.timeout} ms`), this.timeout);
 		})
-			.then((data) => {
-				el.setAttribute(__loaded__, "1");
-				document.dispatchEvent(new CustomEvent(LoaderEvent.LOAD, { detail: el }));
-				callbacks.onload?.(el);
-				return data;
+			.then((result) => {
+				el.setAttribute(_loaded_, "1");
+				if (!("_jsonp_" in options)) {
+					fire(LoaderEvent.LOAD, result);
+					callbacks.onload?.(result.el, result.options);
+				}
+				return result;
 			})
 			.catch((reason) => {
 				el.remove();
-				document.dispatchEvent(new CustomEvent(LoaderEvent.ERROR, { detail: reason }));
-				callbacks.onerror?.(reason);
-				throw new Error(reason);
+				const ret = { reason, options };
+				fire(LoaderEvent.ERROR, ret);
+				callbacks.onerror?.(reason, options);
+				return Promise.reject(ret);
 			})
 			.finally(invoke);
-	},
-	loadScript(url: string, options?: Partial<HTMLScriptElement>, callbacks?: Callbacks<HTMLScriptElement>) {
+	}
+	loadScript(url: string, options?: Attributes<"script">, callbacks?: Callbacks<"script">) {
 		return this.load(
 			"script",
 			{
@@ -99,8 +121,8 @@ export const yamiLoader = {
 			},
 			callbacks
 		);
-	},
-	loadCss(url: string, options?: Partial<HTMLLinkElement>, callbacks?: Callbacks<HTMLLinkElement>) {
+	}
+	loadCss(url: string, options?: Attributes<"link">, callbacks?: Callbacks<"link">) {
 		return this.load(
 			"link",
 			{
@@ -112,33 +134,36 @@ export const yamiLoader = {
 			},
 			callbacks
 		);
-	},
+	}
 
-	async jsonp<R>(
+	async loadJson<R>(
 		url: string,
-		options: {
-			callee: string;
-			name?: string;
-			callbacks?: Callbacks<R>;
-		}
-	): Promise<R> {
+		options: JSONPOptions,
+		callbacks?: Callbacks<"script", R, true>
+	): Promise<{ data: R; options: JSONPOptions }> {
 		const [host, query] = url.split("?");
 		const params = new URLSearchParams(query);
 		params.append(options.name || "jsonCallback", options.callee);
-		const callbacks = Object.create(options.callbacks || {});
-		const cb = callbacks.onload;
-		delete callbacks.onload;
+		const cb = callbacks?.onload;
+		delete callbacks?.onload;
 
-		const el = await this.loadScript(host + "?" + params.toString(), undefined, callbacks as any);
+		const { el, options: opts } = await this.loadScript(
+			host + "?" + params.toString(),
+			Object.assign(options, { _jsonp_: true }),
+			callbacks as any
+		);
 
 		//@ts-ignore
 		const data = globalThis[options.callee]();
 		//@ts-ignore
 		globalThis[options.callee] = null;
 		el.remove();
-		cb?.call(options, data);
-		return data;
-	},
-};
+		const result = { data, options: opts as JSONPOptions };
+		fire(LoaderEvent.LOAD, result);
+		cb?.call(callbacks, data, opts as any);
+		return result;
+	}
+}
 
-export default yamiLoader;
+export const yamiLoader = new YamiLoader();
+export default YamiLoader;

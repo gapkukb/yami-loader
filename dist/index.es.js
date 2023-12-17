@@ -1,108 +1,126 @@
-var g = Object.defineProperty, w = Object.defineProperties;
-var C = Object.getOwnPropertyDescriptors;
-var h = Object.getOwnPropertySymbols;
-var O = Object.prototype.hasOwnProperty, L = Object.prototype.propertyIsEnumerable;
-var v = (r, t, e) => t in r ? g(r, t, { enumerable: !0, configurable: !0, writable: !0, value: e }) : r[t] = e, u = (r, t) => {
+var O = Object.defineProperty, S = Object.defineProperties;
+var T = Object.getOwnPropertyDescriptors;
+var E = Object.getOwnPropertySymbols;
+var w = Object.prototype.hasOwnProperty, C = Object.prototype.propertyIsEnumerable;
+var _ = (n, t, e) => t in n ? O(n, t, { enumerable: !0, configurable: !0, writable: !0, value: e }) : n[t] = e, y = (n, t) => {
   for (var e in t || (t = {}))
-    O.call(t, e) && v(r, e, t[e]);
-  if (h)
-    for (var e of h(t))
-      L.call(t, e) && v(r, e, t[e]);
-  return r;
-}, m = (r, t) => w(r, C(t));
-var y = (r, t, e) => new Promise((o, n) => {
-  var i = (l) => {
+    w.call(t, e) && _(n, e, t[e]);
+  if (E)
+    for (var e of E(t))
+      C.call(t, e) && _(n, e, t[e]);
+  return n;
+}, v = (n, t) => S(n, T(t));
+var p = (n, t, e) => (_(n, typeof t != "symbol" ? t + "" : t, e), e);
+var g = (n, t, e) => new Promise((r, s) => {
+  var d = (o) => {
     try {
-      d(e.next(l));
-    } catch (a) {
-      n(a);
+      u(e.next(o));
+    } catch (i) {
+      s(i);
     }
-  }, s = (l) => {
+  }, f = (o) => {
     try {
-      d(e.throw(l));
-    } catch (a) {
-      n(a);
+      u(e.throw(o));
+    } catch (i) {
+      s(i);
     }
-  }, d = (l) => l.done ? o(l.value) : Promise.resolve(l.value).then(i, s);
-  d((e = e.apply(r, t)).next());
+  }, u = (o) => o.done ? r(o.value) : Promise.resolve(o.value).then(d, f);
+  u((e = e.apply(n, t)).next());
 });
-var _ = /* @__PURE__ */ ((r) => (r.LOAD = "load", r.ERROR = "error", r.COMPLETE = "complete", r))(_ || {});
-const p = document.head || document.getElementsByTagName("head")[0] || document.body, E = "loaded", T = ["body", "frame", "frameset", "iframe", "img", "link", "script", "style"];
-function P(r, t, e) {
-  let o = e.id ? document.getElementById(e.id) : null;
-  if (!o) {
-    const n = `${t}[${t === "link" ? "href" : "src"}="${r}"]`;
-    o = p.querySelector(n);
+var L = /* @__PURE__ */ ((n) => (n.LOAD = "_load", n.ERROR = "_error", n.COMPLETE = "_complete", n))(L || {});
+const c = document.head || document.body, j = "loaded", $ = ["body", "frame", "frameset", "iframe", "img", "link", "script", "style"], h = (n, t) => document.dispatchEvent(new CustomEvent(n, { detail: t }));
+function P(n, t, e) {
+  let r = e.id ? c.querySelector("#" + e.id) : null;
+  if (!r) {
+    const s = `${t}[${t === "link" ? "href" : "src"}="${n}"]`;
+    r = c.querySelector(s);
   }
-  return o || (o = document.createElement(t), Object.assign(o, e), p.appendChild(o)), o;
+  return r || (r = document.createElement(t), Object.assign(r, e), c.appendChild(r)), r;
 }
-const $ = {
-  LoaderEvent: _,
-  load(r, t = {}, e = {}) {
-    const o = t.src || t.href;
-    let n = P(o, r, t);
-    if (!T.includes(r) || n.getAttribute(E) === "1")
-      return Promise.resolve(n);
-    let i;
-    return new Promise((s, d) => {
-      function l() {
-        s(n);
+class R {
+  constructor(t) {
+    p(this, "timeout", 15 * 1e3);
+    p(this, "LoaderEvent", L);
+    Object.assign(this, t);
+  }
+  load(t, e = {}, r = {}) {
+    const s = e.href || e.src;
+    let d = P(s, t, e), f, u = 0;
+    return new Promise((o, i) => {
+      function m() {
+        o({ el: d, options: e });
       }
-      function a() {
-        d(`Failed to load ${o}`);
+      function l(a) {
+        i({ reason: typeof a == "string" ? a : `Failed to load ${s}`, options: e });
       }
-      n.addEventListener("load", l, !1), n.addEventListener("error", a, !1), i = () => {
-        var f;
-        n.removeEventListener("load", l, !1), n.removeEventListener("error", a, !1), document.dispatchEvent(new CustomEvent("complete", { detail: n })), (f = e.oncomplete) == null || f.call(e, n);
-      };
-      const c = 15 * 1e3;
-      setTimeout(() => d(`Time out of ${c}ms`), c);
-    }).then((s) => {
-      var d;
-      return n.setAttribute(E, "1"), document.dispatchEvent(new CustomEvent("load", { detail: n })), (d = e.onload) == null || d.call(e, n), s;
-    }).catch((s) => {
-      var d;
-      throw n.remove(), document.dispatchEvent(new CustomEvent("error", { detail: s })), (d = e.onerror) == null || d.call(e, s), new Error(s);
-    }).finally(i);
-  },
-  loadScript(r, t, e) {
+      if ($.includes(t))
+        if (s) {
+          if (d.getAttribute(j) === "1")
+            return m();
+        } else
+          return l("Not found the source address");
+      else
+        return m();
+      d.addEventListener("load", m, !1), d.addEventListener("error", l, !1), f = () => {
+        var a;
+        d.removeEventListener("load", m, !1), d.removeEventListener("error", l, !1), h("_complete", e), (a = r.oncomplete) == null || a.call(r, e), clearTimeout(u);
+      }, u = setTimeout(() => l(`Time out of ${this.timeout} ms`), this.timeout);
+    }).then((o) => {
+      var i;
+      return d.setAttribute(j, "1"), "_jsonp_" in e || (h("_load", o), (i = r.onload) == null || i.call(r, o.el, o.options)), o;
+    }).catch((o) => {
+      var m;
+      d.remove();
+      const i = { reason: o, options: e };
+      return h("_error", i), (m = r.onerror) == null || m.call(r, o, e), Promise.reject(i);
+    }).finally(f);
+  }
+  loadScript(t, e, r) {
     return this.load(
       "script",
-      m(u({}, t), {
+      v(y({}, e), {
         defer: !0,
         async: !0,
         type: "text/javascript",
         crossOrigin: "anonymous",
-        src: r
+        src: t
       }),
-      e
+      r
     );
-  },
-  loadCss(r, t, e) {
+  }
+  loadCss(t, e, r) {
     return this.load(
       "link",
-      m(u({}, t), {
+      v(y({}, e), {
         rel: "stylesheet",
         type: "text/css",
         crossOrigin: "anonymous",
-        href: r
+        href: t
       }),
-      e
+      r
     );
-  },
-  jsonp(r, t) {
-    return y(this, null, function* () {
-      const [e, o] = r.split("?"), n = new URLSearchParams(o);
-      n.append(t.name || "jsonCallback", t.callee);
-      const i = Object.create(t.callbacks || {}), s = i.onload;
-      delete i.onload;
-      const d = yield this.loadScript(e + "?" + n.toString(), void 0, i), l = globalThis[t.callee]();
-      return globalThis[t.callee] = null, d.remove(), s == null || s.call(t, l), l;
+  }
+  loadJson(t, e, r) {
+    return g(this, null, function* () {
+      const [s, d] = t.split("?"), f = new URLSearchParams(d);
+      f.append(e.name || "jsonCallback", e.callee);
+      const u = r == null ? void 0 : r.onload;
+      r == null || delete r.onload;
+      const { el: o, options: i } = yield this.loadScript(
+        s + "?" + f.toString(),
+        Object.assign(e, { _jsonp_: !0 }),
+        r
+      ), m = globalThis[e.callee]();
+      globalThis[e.callee] = null, o.remove();
+      const l = { data: m, options: i };
+      return h("_load", l), u == null || u.call(r, m, i), l;
     });
   }
-};
+}
+const x = new R();
 export {
-  _ as LoaderEvent,
-  $ as default,
-  $ as yamiLoader
+  L as LoaderEvent,
+  R as YamiLoader,
+  R as default,
+  x as yamiLoader
 };

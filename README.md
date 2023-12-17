@@ -17,13 +17,22 @@ npm install yami-loader
 # Import
 
 ```
-import yamiLoader from 'yami-loader';
+// class
+import YamiLoader from 'yami-loader';
 ```
 
 OR
 
 ```
+// instance
 import { yamiLoader } from 'yami-loader';
+// class
+import { YamiLoader } from 'yami-loader';
+// custom
+const yamiLoader = new YamiLoader({timeout:15*1000});
+
+// timeout default 15s
+
 ```
 
 # Examples
@@ -31,11 +40,12 @@ import { yamiLoader } from 'yami-loader';
 ## For script
 
 ```
-// options is optional with html link element attributes
+// options is optional with html script element attributes
 yamiLoader
-    .loadScript("/demo.js" /** options */)
-    .then((el) => {
-        // el is HTMLScriptElement
+    .loadScript("/demo.js", options)
+    .then((el,opts) => {
+        // el is HTMLLinkElement,
+        // opts equal to your options,but may will automaticlly inject some properties by the lib.
         // do something after loaded at here
     });
 
@@ -44,9 +54,9 @@ yamiLoader
 ## For css
 
 ```
-// options is optional with html script element attributes
+// options is optional with html link element attributes
 yamiLoader
-    .loadCss("/demo.css" /** options */)
+    .loadCss("/demo.css", options)
     .then((el) => {
         // el is HTMLLinkElement
         // do something after loaded at here
@@ -57,15 +67,15 @@ yamiLoader
 
 ```
 yamiLoader
-    .jsonp("/demo.js", {
-        // final like this: http://www.xx.com?jsonCallback=demo
-
+    .loadJson("/demo.js", {
         // tell the server the params name of the callback
-        name: "jsonCallback",
+        name?: "jsonCallback",
         // tell the server the callback function name
-        callee: "demo",
+        callee: "demo", // required
+        // finally looks like this: http://www.xx.com?jsonCallback=demo,
+        // ...etc options
     })
-    .then((data) => {
+    .then((data,options) => {
         console.log(data);
     });
 
@@ -74,6 +84,8 @@ yamiLoader
 
 ```
 
+<font size="14" color="red">!!! note: loadJson's response has data instad of el</font>
+
 ## For any
 
 ```
@@ -81,64 +93,70 @@ yamiLoader
 
 yamiLoader
     .load("script", {
-        src:"demo.js",
-        id:"demo"
+        src:"???",
+        // ...more HTMLScriptElement options
     })
-    .then((el) => {
-        console.log(el);
+    .then((el,options) => {
+        console.log(el,options);
     });
 
 
 yamiLoader
     .load("img", {
         src:"demo.png",
-        id:"demo"
+        id:"demo",
+        // ...more HTMLImageElement options
     })
-    .then((el) => {
-        console.log(el);
-        // default insert to the head, you can re-insert to the body or other element
+    .then((el,options) => {
+        // default the element insert to the head, you can re-insert to the body or other element
+        // the orignal element will be automaticlly removed from the head.
         document.body.appendChild(el);
     });
 
 ```
 
-## Above all examples base on promise syntax, if you like callbacks, just fllow the below:
+## Above all examples base on promise syntax, if you like callbacks, just follow the below:
 
     We recommand you use the promise syntax,because it's more clear and easy to use.
 
 ```
 yamiLoader
-    .loadScript("/demo.js",options,{
-        onload(el){},
-        onerror(reson){},
-        oncomplete(el){},
+    .loadScript("/demo.js",options, {
+        onload(el,options){},
+        onerror(reson,options){},
+        oncomplete(options){},
     })
 
 ```
 
-## Also if you like use the dispatch event,just below
+<font size="14" color="red">!!! note: loadJson's onload has data instad of el</font>
+
+## Also if you like use the dispatch event,just follow the below
 
 ### Because the event cannot spec element,you should mark the element by attribute, such as className,id
 
-    jsonp method not supoort use the event to get data!!!
-    must use the promise syntax or callbacks.
+<font size="14" color="red">Also the options export a field named 'extra' , you can fill it use to mark the
+element.</font>
 
 ```
 // import { LoaderEvent } from "yami-loader"
 
-document.addEventListener(yamiLoaded.LoaderEvent.LOAD /** or LoaderEvent.LOAD */,{detail}=>{
- // detail is a element
- if(detail.id ==="demo"){
-    //do something
+document.addEventListener(yamiLoaded.LoaderEvent.LOAD /** or LoaderEvent.LOAD */,{detail:{el,options}}=>{
+ // detail is a object as { el:HTMLElement,reason:Error,data: }
+ if(el.id ==="demo"){
+    // do something
+ }
+ // or
+ if(el.options.extra ==="marked"){
+    // do something
  }
 },false)
 yamiLoader
-    .loadScript("/demo.js",{id:"demo"},{
-        onload(el){},
-        onerror(reson){},
-        oncomplete(el){},
-    })
+    .loadScript("/demo.js",{id:"demo", extra:"marked"})
+
 
 ```
+
+<font size="14" color="red">!!! note: loadJson's yamiLoaded.LoaderEvent.LOAD event has data instad of el</font>
 
 # -----------END--------------

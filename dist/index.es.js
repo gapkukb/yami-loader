@@ -1,17 +1,17 @@
 var O = Object.defineProperty, S = Object.defineProperties;
 var T = Object.getOwnPropertyDescriptors;
-var E = Object.getOwnPropertySymbols;
+var j = Object.getOwnPropertySymbols;
 var w = Object.prototype.hasOwnProperty, C = Object.prototype.propertyIsEnumerable;
 var _ = (n, t, e) => t in n ? O(n, t, { enumerable: !0, configurable: !0, writable: !0, value: e }) : n[t] = e, y = (n, t) => {
   for (var e in t || (t = {}))
     w.call(t, e) && _(n, e, t[e]);
-  if (E)
-    for (var e of E(t))
+  if (j)
+    for (var e of j(t))
       C.call(t, e) && _(n, e, t[e]);
   return n;
-}, v = (n, t) => S(n, T(t));
-var p = (n, t, e) => (_(n, typeof t != "symbol" ? t + "" : t, e), e);
-var g = (n, t, e) => new Promise((r, s) => {
+}, p = (n, t) => S(n, T(t));
+var v = (n, t, e) => (_(n, typeof t != "symbol" ? t + "" : t, e), e);
+var E = (n, t, e) => new Promise((r, s) => {
   var d = (o) => {
     try {
       u(e.next(o));
@@ -28,7 +28,7 @@ var g = (n, t, e) => new Promise((r, s) => {
   u((e = e.apply(n, t)).next());
 });
 var L = /* @__PURE__ */ ((n) => (n.LOAD = "_load", n.ERROR = "_error", n.COMPLETE = "_complete", n))(L || {});
-const c = document.head || document.body, j = "loaded", $ = ["body", "frame", "frameset", "iframe", "img", "link", "script", "style"], h = (n, t) => document.dispatchEvent(new CustomEvent(n, { detail: t }));
+const c = document.head || document.body, g = "loaded", $ = ["body", "frame", "frameset", "iframe", "img", "link", "script", "style"], a = (n, t) => document.dispatchEvent(new CustomEvent(n, { detail: t }));
 function P(n, t, e) {
   let r = e.id ? c.querySelector("#" + e.id) : null;
   if (!r) {
@@ -39,8 +39,8 @@ function P(n, t, e) {
 }
 class R {
   constructor(t) {
-    p(this, "timeout", 15 * 1e3);
-    p(this, "LoaderEvent", L);
+    v(this, "timeout", 15 * 1e3);
+    v(this, "LoaderEvent", L);
     Object.assign(this, t);
   }
   load(t, e = {}, r = {}) {
@@ -50,35 +50,35 @@ class R {
       function m() {
         o({ el: d, options: e });
       }
-      function l(a) {
-        i({ reason: typeof a == "string" ? a : `Failed to load ${s}`, options: e });
+      function l(h) {
+        i({ reason: typeof h == "string" ? h : `Failed to load ${s}`, options: e });
       }
       if ($.includes(t))
         if (s) {
-          if (d.getAttribute(j) === "1")
+          if (d.getAttribute(g) === "1")
             return m();
         } else
           return l("Not found the source address");
       else
         return m();
       d.addEventListener("load", m, !1), d.addEventListener("error", l, !1), f = () => {
-        var a;
-        d.removeEventListener("load", m, !1), d.removeEventListener("error", l, !1), h("_complete", e), (a = r.oncomplete) == null || a.call(r, e), clearTimeout(u);
+        var h;
+        d.removeEventListener("load", m, !1), d.removeEventListener("error", l, !1), a("_complete", e), (h = r.oncomplete) == null || h.call(r, e), clearTimeout(u);
       }, u = setTimeout(() => l(`Time out of ${this.timeout} ms`), this.timeout);
     }).then((o) => {
       var i;
-      return d.setAttribute(j, "1"), "_jsonp_" in e || (h("_load", o), (i = r.onload) == null || i.call(r, o.el, o.options)), o;
+      return d.setAttribute(g, "1"), "_jsonp_" in e || (a("_load", o), (i = r.onload) == null || i.call(r, o.el, o.options)), o;
     }).catch((o) => {
       var m;
       d.remove();
       const i = { reason: o, options: e };
-      return h("_error", i), (m = r.onerror) == null || m.call(r, o, e), Promise.reject(i);
+      return a("_error", i), (m = r.onerror) == null || m.call(r, o, e), Promise.reject(i);
     }).finally(f);
   }
   loadScript(t, e, r) {
     return this.load(
       "script",
-      v(y({}, e), {
+      p(y({}, e), {
         defer: !0,
         async: !0,
         type: "text/javascript",
@@ -91,7 +91,7 @@ class R {
   loadCss(t, e, r) {
     return this.load(
       "link",
-      v(y({}, e), {
+      p(y({}, e), {
         rel: "stylesheet",
         type: "text/css",
         crossOrigin: "anonymous",
@@ -100,8 +100,8 @@ class R {
       r
     );
   }
-  loadJson(t, e, r) {
-    return g(this, null, function* () {
+  jsonp(t, e, r) {
+    return E(this, null, function* () {
       const [s, d] = t.split("?"), f = new URLSearchParams(d);
       f.append(e.name || "jsonCallback", e.callee);
       const u = r == null ? void 0 : r.onload;
@@ -113,7 +113,7 @@ class R {
       ), m = globalThis[e.callee]();
       globalThis[e.callee] = null, o.remove();
       const l = { data: m, options: i };
-      return h("_load", l), u == null || u.call(r, m, i), l;
+      return a("_load", l), u == null || u.call(r, m, i), l;
     });
   }
 }

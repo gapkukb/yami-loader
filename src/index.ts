@@ -136,7 +136,7 @@ export class YamiLoader {
 		);
 	}
 
-	async loadJson<R>(
+	async jsonp<R>(
 		url: string,
 		options: JSONPOptions,
 		callbacks?: Callbacks<"script", R, true>

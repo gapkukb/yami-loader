@@ -44,7 +44,7 @@ const yamiLoader = new YamiLoader({timeout:15*1000});
 yamiLoader
     .loadScript("/demo.js", options)
     .then((el,opts) => {
-        // el is HTMLLinkElement,
+        // el is HTMLScriptElement,
         // opts equal to your options,but may will automaticlly inject some properties by the lib.
         // do something after loaded at here
     });
@@ -67,9 +67,9 @@ yamiLoader
 
 ```
 yamiLoader
-    .loadJson("/demo.js", {
+    .jsonp("/demo.js", {
         // tell the server the params name of the callback
-        name?: "jsonCallback",
+        name: "jsonCallback", // optional, default "jsonCallback"
         // tell the server the callback function name
         callee: "demo", // required
         // finally looks like this: http://www.xx.com?jsonCallback=demo,
@@ -84,7 +84,7 @@ yamiLoader
 
 ```
 
-<font size="14" color="red">!!! note: loadJson's response has data instad of el</font>
+<font size="14" color="red">!!! note: jsonp's response has data instad of el</font>
 
 ## For any
 
@@ -93,7 +93,7 @@ yamiLoader
 
 yamiLoader
     .load("script", {
-        src:"???",
+        src:"demo.js",
         // ...more HTMLScriptElement options
     })
     .then((el,options) => {
@@ -104,7 +104,6 @@ yamiLoader
 yamiLoader
     .load("img", {
         src:"demo.png",
-        id:"demo",
         // ...more HTMLImageElement options
     })
     .then((el,options) => {
@@ -112,12 +111,25 @@ yamiLoader
         // the orignal element will be automaticlly removed from the head.
         document.body.appendChild(el);
     });
+yamiLoader
+    .load("iframe", {
+        src:"demo.png",
+        // ...more HTMLImageElement options
+    })
+
+// the element without onload event will be returned once created or queryed (only working when the element has id,if no id always create a new element).
+
+yamiLoader
+    .load("div", {
+        id:"demo",
+        // ...more HTMLDivElement options
+    })
 
 ```
 
 ## Above all examples base on promise syntax, if you like callbacks, just follow the below:
 
-    We recommand you use the promise syntax,because it's more clear and easy to use.
+### We recommand you use the promise syntax,because it's more clear and easy to use.
 
 ```
 yamiLoader
@@ -129,7 +141,7 @@ yamiLoader
 
 ```
 
-<font size="14" color="red">!!! note: loadJson's onload has data instad of el</font>
+<font size="14" color="red">!!! note: jsonp's onload has data instad of el</font>
 
 ## Also if you like use the dispatch event,just follow the below
 
@@ -147,7 +159,7 @@ document.addEventListener(yamiLoaded.LoaderEvent.LOAD /** or LoaderEvent.LOAD */
     // do something
  }
  // or
- if(el.options.extra ==="marked"){
+ if(options.extra ==="marked"){
     // do something
  }
 },false)
@@ -157,6 +169,6 @@ yamiLoader
 
 ```
 
-<font size="14" color="red">!!! note: loadJson's yamiLoaded.LoaderEvent.LOAD event has data instad of el</font>
+<font size="14" color="red">!!! note: jsonp's yamiLoaded.LoaderEvent.LOAD event has data instad of el</font>
 
 # -----------END--------------

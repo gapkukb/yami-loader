@@ -35,7 +35,7 @@ export declare class YamiLoader {
         el: HTMLLinkElement;
         options: Attributes<"link">;
     }>;
-    loadJson<R>(url: string, options: JSONPOptions, callbacks?: Callbacks<"script", R, true>): Promise<{
+    jsonp<R>(url: string, options: JSONPOptions, callbacks?: Callbacks<"script", R, true>): Promise<{
         data: R;
         options: JSONPOptions;
     }>;

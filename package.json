@@ -1,6 +1,6 @@
 {
 	"name": "yami-loader",
-	"version": "0.0.8",
+	"version": "0.0.9",
 	"type": "module",
 	"module": "./dist/index.es.js",
 	"main": "./dist/index.umd.js",
@@ -8,7 +8,7 @@
 	"types": "./dist/index.d.ts",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/monatheoctocat/my_package.git"
+		"url": "https://github.com/gapkukb/yami-loader"
 	},
 	"keywords": [
 		"script",
@@ -22,9 +22,9 @@
 	"author": "",
 	"license": "ISC",
 	"bugs": {
-		"url": "https://github.com/monatheoctocat/my_package/issues"
+		"url": "https://github.com/gapkukb/yami-loader/issues"
 	},
-	"homepage": "https://github.com/monatheoctocat/my_package",
+	"homepage": "https://github.com/gapkukb/yami-loader",
 	"scripts": {
 		"dev": "vite",
 		"build": "vite build && tsc -p tsconfig.build.json",

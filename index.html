@@ -12,12 +12,43 @@
 			content="width=device-width, initial-scale=1.0"
 		/>
 		<title>Vite + TS</title>
+		<style>
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+			.stickying {
+				box-shadow: 0 4px 4px -4px #000;
+			}
+		</style>
 	</head>
 	<body>
-		<div id="app"></div>
+		<div id="app">
+			<div
+				id="header"
+				style="background-color: red; position: sticky; top: -0.1px; padding-top: 1px; height: 64px"
+			></div>
+			<div
+				style="background-color: blue; height: 2000px"
+				id="cnt"
+			></div>
+			<div
+				id="footer"
+				style="background-color: red; position: sticky; bottom: -0.1px; padding-top: 1px; height: 64px"
+			></div>
+		</div>
 		<script
 			type="module"
 			src="/src/index.ts"
 		></script>
+
+		<script>
+			const dom = Array.from({ length: 100 }).reduce((acc, item, index) => {
+				acc += `<div>${index}</div>`;
+				return acc;
+			}, "");
+			document.querySelector("#cnt").innerHTML = dom;
+		</script>
 	</body>
 </html>

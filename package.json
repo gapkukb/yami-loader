@@ -1,10 +1,10 @@
 {
 	"name": "yami-loader",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"type": "module",
 	"module": "./dist/index.es.js",
-	"main": "./dist/index.umd.js",
-	"browser": "./dist/index.umd.js",
+	"main": "./dist/index.es.js",
+	"browser": "./dist/index.es.js",
 	"types": "./dist/index.d.ts",
 	"repository": {
 		"type": "git",
@@ -33,5 +33,8 @@
 	"devDependencies": {
 		"typescript": "^5.2.2",
 		"vite": "^5.0.8"
+	},
+	"dependencies": {
+		"interval-promise": "^1.4.0"
 	}
 }
